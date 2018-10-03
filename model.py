@@ -19,7 +19,8 @@ class User(db.Model):
     
     def __repr__ (self):
 
-        return f"<User user_id={self.user_id} email={self.email} {self.password} {self.age} {self.zipcode}>"
+        return f"<User user_id={self.user_id} email={self.email} {self.password}\
+        {self.age} {self.zipcode}> "
 
 
 
@@ -37,9 +38,9 @@ class Movie(db.Model):
     __tablename__ = "movies"
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    title = db.Column(db.String(64), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     released_at = db.Column(db.DateTime, nullable=False)
-    imdb_url = db.Column(db.String(64), nullable=False)
+    imdb_url = db.Column(db.String(200), nullable=False)
     
 class Rating(db.Model):
 

@@ -3,7 +3,7 @@
 from sqlalchemy import func
 from model import User,Rating,Movie
 
-
+from datetime import datetime
 from model import connect_to_db, db
 from server import app
 
@@ -44,23 +44,45 @@ def load_movies():
     Movie.query.delete()
 
     # Read u.user file and insert data
+
+
+
     for row in open("seed_data/u.item"):
         row = row.rstrip()
-       # movie_id,title,released_at,imdb_url = row.split("|")
-            #remove split and add fields saparate and then add datetime/strptime 
-       # if released_str:
-       #     released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
-       # else:
-       #     released_at = None
+
+
+        movie_info = row.split("|")
+        movie_id = movie_info[0]
+        title = movie_info[1]
+        released_at=movie_info[2]
+        imdb_url = movie_info[4]
+
+
+            # add datetime/strptime 
+        if released_at:
+            released_at =datetime.strptime(released_at, "%d-%b-%Y")
+        else:
+            released_at = None
 
         movie = Movie(movie_id=movie_id,
-                    title=title,
-                    released_at=released_at,
-                    imdb_url=imdb_url)
-
+                title=title,
+                released_at=released_at,
+                imdb_url=imdb_url)
         # We need to add to the session or it won't ever be stored
+        
         db.session.add(movie)
 
+
+
+          # Get the Max user_id in the database
+    result = db.session.query(func.max(Movie.movie_id)).one()
+    max_id = int(result[0])
+
+    # Set the value for the next user_id to be max_id + 1
+    query = "SELECT setval('movies_movie_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id + 1})
+    db.session.commit()
+        
     # Once we're done, we should commit our work
     db.session.commit()
 
@@ -77,10 +99,14 @@ def load_ratings():
     # Read u.user file and insert data
     for row in open("seed_data/u.data"):
         row = row.rstrip()
-        rating_id,movie_id,user_id,score = row.split("|")
+        rating = row.split()
 
-        rating = User(rating_id=rating_id,
-                    movie_id=movie_id,
+        movie_id = rating[1]
+        user_id = rating[0]
+        score = rating[2]
+
+
+        rating = Rating(movie_id=movie_id,
                     user_id=user_id,
                     score = score)
 
@@ -113,4 +139,4 @@ if __name__ == "__main__":
     load_users()
     load_movies()
     load_ratings()
-    set_val_user_id()
+    # set_val_user_id()
