@@ -35,21 +35,35 @@ def user_list():
 
 
 
-@app.route("/register",method = ["GET"])
+@app.route("/register",methods = ["GET"])
 def register_form():
     """ register page for user"""
 
     return render_template("register_form.html")
 
 
-@app.route("/register",method = ["POST"])
+@app.route("/register",methods = ["POST"])
 def register_process():
     """ register page for user"""
 
     email = request.form.get('email')
     password = request.form.get("password")
 
-    return redirect("/")
+    user = User.query.filter(User.email == email).first()
+
+    if user is not  None:
+
+        if password == user.password :
+            session['user'] = email
+            flash("Logged In")
+            return redirect ("/")
+        else:
+            flash("Wrong Password")
+            return redirect("/register")
+    else:
+
+        flash("Invalid user")
+        return redirect("/register")
 
 
 if __name__ == "__main__":
